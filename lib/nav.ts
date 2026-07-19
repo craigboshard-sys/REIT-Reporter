@@ -15,8 +15,8 @@ export const navSections: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "SENS Announcements", href: "/sens", phase: 2, live: true },
       { label: "News Articles", href: "/news", phase: 2, live: true },
-      { label: "Social Media Posts", href: "/social", phase: 4, live: false },
-      { label: "Podcasts", href: "/podcasts", phase: 4, live: false },
+      { label: "Social Media Posts", href: "/social", phase: 4, live: true },
+      { label: "Podcasts", href: "/podcasts", phase: 4, live: true },
       { label: "Video / Interviews", href: "/video", phase: 4, live: true },
       { label: "Regulatory Bodies", href: "/regulatory", phase: 2, live: false },
     ],
