@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { scrapeMoneywebProperty } from "./news/moneyweb.js";
+import { matchesCompany } from "./match-company.js";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -9,17 +10,6 @@ if (!supabaseUrl || !serviceRoleKey) {
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
-
-function matchesCompany(categories: string[], companyName: string): boolean {
-  const normalizedCategories = categories.map((c) => c.toLowerCase());
-  const nameWords = companyName
-    .toLowerCase()
-    .replace(/\b(properties|property fund|reit|limited|ltd)\b/g, "")
-    .trim();
-  return normalizedCategories.some(
-    (c) => c.includes(nameWords) || nameWords.includes(c),
-  );
-}
 
 async function run() {
   const { data: companies, error: companiesError } = await supabase

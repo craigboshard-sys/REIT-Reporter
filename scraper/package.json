@@ -6,7 +6,8 @@
   "scripts": {
     "scrape": "tsx src/index.ts",
     "scrape:news": "tsx src/scrape-news.ts",
-    "scrape:macro": "tsx src/scrape-macro.ts"
+    "scrape:macro": "tsx src/scrape-macro.ts",
+    "scrape:video": "tsx src/scrape-video.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
