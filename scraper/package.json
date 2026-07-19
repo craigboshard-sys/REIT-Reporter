@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "scrape": "tsx src/index.ts"
+    "scrape": "tsx src/index.ts",
+    "scrape:news": "tsx src/scrape-news.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

@@ -31,7 +31,7 @@ export function Sidebar() {
                     }`}
                   >
                     <span>{item.label}</span>
-                    {item.phase > 1 && (
+                    {!item.live && (
                       <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
                         P{item.phase}
                       </span>

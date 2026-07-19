@@ -20,7 +20,7 @@ export default function DashboardPage() {
           >
             <div className="font-medium text-sm">{item.label}</div>
             <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              {item.phase === 1 ? "Live" : `Planned — Phase ${item.phase}`}
+              {item.live ? "Live" : `Planned — Phase ${item.phase}`}
             </div>
           </Link>
         ))}
