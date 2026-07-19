@@ -28,7 +28,7 @@ export const navSections: { title: string; items: NavItem[] }[] = [
       { label: "Analyst Coverage", href: "/analysts", phase: 4, live: false },
       { label: "Financial Metrics", href: "/financials", phase: 3, live: false },
       { label: "Market Data", href: "/market", phase: 2, live: true },
-      { label: "Macro Indicators", href: "/macro", phase: 3, live: false },
+      { label: "Macro Indicators", href: "/macro", phase: 3, live: true },
     ],
   },
 ];
