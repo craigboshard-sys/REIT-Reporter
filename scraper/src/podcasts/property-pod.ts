@@ -26,7 +26,10 @@ export async function scrapePropertyPod(): Promise<ScrapedEpisode[]> {
       const pubDate = $item.find("pubDate").first().text().trim();
       const duration = $item.find("itunes\\:duration").first().text().trim() || null;
       const audioUrl = $item.find("enclosure").first().attr("url") ?? null;
-      const description = $item.find("description").first().text().trim() || null;
+      const rawDescription = $item.find("description").first().text().trim();
+      const description = rawDescription
+        ? rawDescription.replace(/<[^>]+>/g, "").trim() || null
+        : null;
 
       if (!guid || !title || !link || !pubDate) return null;
 

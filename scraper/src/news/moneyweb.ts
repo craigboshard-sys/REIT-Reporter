@@ -21,7 +21,8 @@ export async function scrapeMoneywebProperty(): Promise<ScrapedArticle[]> {
       const title = $item.find("title").first().text().trim();
       const url = $item.find("link").first().text().trim();
       const pubDate = $item.find("pubDate").first().text().trim();
-      const summary = $item.find("description").first().text().trim() || null;
+      const rawSummary = $item.find("description").first().text().trim();
+      const summary = rawSummary ? rawSummary.replace(/<[^>]+>/g, "").trim() || null : null;
       const categories = $item
         .find("category")
         .map((_, cat) => $(cat).text().trim())
