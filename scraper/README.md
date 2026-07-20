@@ -59,16 +59,24 @@ often. Each site has its own HTML structure, so each has its own adapter
 run (delete + insert), since this represents *current* leadership, not a
 history.
 
-17 of 21 companies are covered: Accelerate, Attacq, Delta, Dipula, Emira,
-Equites, Fairvest, Heriot, Hyprop, NEPI Rockcastle, Oasis Crescent, Octodec,
+16 of 21 companies are covered: Accelerate, Attacq, Dipula, Emira, Equites,
+Fairvest, Heriot, Hyprop, NEPI Rockcastle, Oasis Crescent, Octodec,
 Resilient, SA Corporate, Spear, Stor-Age, Vukile.
 
 Not covered:
-- **Growthpoint, Redefine** — blocked by bot protection even with
-  browser-like headers (see `src/http.ts`); would need a real headless
-  browser to get past.
+- **Growthpoint, Redefine, Delta** — blocked by bot protection specifically
+  from GitHub Actions' shared runner IPs. Browser-like headers (see
+  `src/http.ts`) unblocked Delta when tested from a residential/dev IP, but
+  it still 403s in CI — so this is IP-reputation-based, not just a header
+  check, and headers alone can't fix it. Would need a real headless browser
+  (or a non-shared egress IP) to get past.
 - **Burstone, Fortress** — genuinely JS-rendered, no leadership data present
   in the static HTML at all.
+
+Octodec has occasionally failed with a plain network error (DNS/connectivity
+blip, not a code issue) — the scraper's delete-then-insert is per-company
+and only runs if the scrape succeeds, so a transient failure leaves that
+company's previous data untouched rather than wiping it.
 
 Note on `src/http.ts`: several sites (Fairvest, Vukile, Delta) initially
 failed only in GitHub Actions CI, not locally — their bot protection was
