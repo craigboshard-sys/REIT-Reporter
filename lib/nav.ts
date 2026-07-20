@@ -18,7 +18,7 @@ export const navSections: { title: string; items: NavItem[] }[] = [
       { label: "Social Media Posts", href: "/social", phase: 4, live: true },
       { label: "Podcasts", href: "/podcasts", phase: 4, live: true },
       { label: "Video / Interviews", href: "/video", phase: 4, live: true },
-      { label: "Regulatory Bodies", href: "/regulatory", phase: 2, live: false },
+      { label: "Regulatory Bodies", href: "/regulatory", phase: 2, live: true },
     ],
   },
   {
