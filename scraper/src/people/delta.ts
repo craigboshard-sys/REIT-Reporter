@@ -1,5 +1,4 @@
-import * as cheerio from "cheerio";
-import { fetchHtml } from "../http.js";
+import { withStealthPage } from "../browser.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://www.deltafund.co.za/board-of-directors/";
@@ -7,30 +6,25 @@ const URL = "https://www.deltafund.co.za/board-of-directors/";
 export const delta: PeopleAdapter = {
   jseCode: "DLT",
   async scrape() {
-    const res = await fetchHtml(URL);
-    if (!res.ok) throw new Error(`Delta board page returned ${res.status}`);
-    const $ = cheerio.load(await res.text());
+    return withStealthPage(async (page) => {
+      await page.goto(URL, { waitUntil: "networkidle" });
 
-    const people: ScrapedPerson[] = [];
-    $(".elementor-flip-box").each((_, el) => {
-      const $el = $(el);
-      const fullName = $el.find(".elementor-flip-box__front h3").first().text().trim();
-      const roleTitle = $el.find(".elementor-flip-box__back h3").first().text().trim();
-      const bio = $el
-        .find(".elementor-flip-box__layer__description")
-        .first()
-        .text()
-        .trim();
+      const cards = await page.$$eval(".elementor-flip-box", (els) =>
+        els.map((el) => ({
+          name: el.querySelector(".elementor-flip-box__front h3")?.textContent?.trim() ?? "",
+          role: el.querySelector(".elementor-flip-box__back h3")?.textContent?.trim() ?? "",
+          bio: el.querySelector(".elementor-flip-box__layer__description")?.textContent?.trim() ?? "",
+        })),
+      );
 
-      if (!fullName || !roleTitle) return;
-      people.push({
-        fullName,
-        roleTitle,
-        isExecutive: looksExecutive(roleTitle),
-        bio: bio.length > 20 ? bio : null,
-      });
+      return cards
+        .filter((c) => c.name && c.role)
+        .map((c) => ({
+          fullName: c.name,
+          roleTitle: c.role,
+          isExecutive: looksExecutive(c.role),
+          bio: c.bio.length > 20 ? c.bio : null,
+        }));
     });
-
-    return people;
   },
 };

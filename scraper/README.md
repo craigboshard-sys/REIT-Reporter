@@ -59,30 +59,37 @@ often. Each site has its own HTML structure, so each has its own adapter
 run (delete + insert), since this represents *current* leadership, not a
 history.
 
-16 of 21 companies are covered: Accelerate, Attacq, Dipula, Emira, Equites,
-Fairvest, Heriot, Hyprop, NEPI Rockcastle, Oasis Crescent, Octodec,
-Resilient, SA Corporate, Spear, Stor-Age, Vukile.
+**All 21 active companies now have an adapter.** Most use plain `fetch` +
+`cheerio` (fast, no browser needed). Five use a real headless browser via
+`src/browser.ts` because their bot protection (Cloudflare) blocks or
+challenges plain HTTP requests and/or the page only renders via JS:
 
-Not covered:
-- **Growthpoint, Redefine, Delta** — blocked by bot protection specifically
-  from GitHub Actions' shared runner IPs. Browser-like headers (see
-  `src/http.ts`) unblocked Delta when tested from a residential/dev IP, but
-  it still 403s in CI — so this is IP-reputation-based, not just a header
-  check, and headers alone can't fix it. Would need a real headless browser
-  (or a non-shared egress IP) to get past.
-- **Burstone, Fortress** — genuinely JS-rendered, no leadership data present
-  in the static HTML at all.
+| Company | Why headless |
+|---|---|
+| Growthpoint (GRT) | Cloudflare challenge page blocks plain fetch; renders fine in a real browser |
+| Redefine (RDF) | Same |
+| Burstone (BTN) | JS-rendered React site; bios are behind a click-to-reveal tab (names/roles captured, bios skipped — would need per-person clicking) |
+| Fortress (FFB) | JS-rendered Angular site using a Slick carousel; board tab requires a click to load, scraper clicks it |
+| Delta (DLT) | Plain fetch worked fine locally but was blocked (403) specifically from GitHub Actions' shared runner IPs; converted to headless on the chance it's a fingerprint issue rather than pure IP reputation — **check scraper output after the next scheduled run to see if this actually fixed it in CI**, since a headless browser running from the same GitHub Actions IP might still get blocked if the block is truly IP-reputation-based rather than fingerprint-based |
+
+`src/browser.ts` (`withStealthPage`) launches Chromium with
+`--disable-blink-features=AutomationControlled` and patches
+`navigator.webdriver` — standard, publicly documented evasions for
+Cloudflare's headless-browser detection, not identity spoofing. The GitHub
+Actions workflow installs Chromium via `npx playwright install --with-deps
+chromium` before running the scraper.
 
 Octodec has occasionally failed with a plain network error (DNS/connectivity
 blip, not a code issue) — the scraper's delete-then-insert is per-company
 and only runs if the scrape succeeds, so a transient failure leaves that
 company's previous data untouched rather than wiping it.
 
-Note on `src/http.ts`: several sites (Fairvest, Vukile, Delta) initially
-failed only in GitHub Actions CI, not locally — their bot protection was
-flagging Node's default `fetch()` headers (generic User-Agent, no Accept),
-not the CI IP itself. All people-scraper requests go through a shared
-`fetchHtml()` helper that sends realistic browser headers.
+Note on `src/http.ts`: the plain-fetch adapters (Fairvest, Vukile, and
+originally Delta) initially failed only in GitHub Actions CI, not locally —
+their bot protection was flagging Node's default `fetch()` headers (generic
+User-Agent, no Accept), not the CI IP itself. All plain-fetch people-scraper
+requests go through a shared `fetchHtml()` helper that sends realistic
+browser headers.
 
 Oasis Crescent caveat: that page lists directors of the parent **Oasis
 Group Holdings**, not confirmed to be identical to Oasis Crescent Property

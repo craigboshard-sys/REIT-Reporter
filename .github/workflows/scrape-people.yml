@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - run: npx playwright install --with-deps chromium
       - run: npm run scrape:people
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
