@@ -23,7 +23,15 @@ export const fortress: PeopleAdapter = {
   jseCode: "FFB",
   async scrape() {
     return withStealthPage(async (page) => {
-      await page.goto(URL, { waitUntil: "networkidle" });
+      await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 60000 });
+      // Slick clones slides for infinite-loop scrolling; some clones stay
+      // hidden (display:none), so waiting for the default "visible" state
+      // can pick a hidden clone and time out. We only need the text, so
+      // "attached" (present in the DOM) is enough.
+      await page.waitForSelector(".slick-slide .content-container", {
+        timeout: 30000,
+        state: "attached",
+      });
 
       // "Management team" tab content is shown by default.
       const managementSlides = await readSlides(page);
