@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URLS = [
@@ -12,7 +13,7 @@ export const storAge: PeopleAdapter = {
     const seen = new Map<string, ScrapedPerson>();
 
     for (const url of URLS) {
-      const res = await fetch(url);
+      const res = await fetchHtml(url);
       if (!res.ok) continue;
       const $ = cheerio.load(await res.text());
 

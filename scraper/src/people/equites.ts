@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://equites.co.za/about/corporate-governance/";
@@ -8,7 +9,7 @@ const URL = "https://equites.co.za/about/corporate-governance/";
 export const equites: PeopleAdapter = {
   jseCode: "EQU",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Equites governance page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://attacq.co.za/leadership";
@@ -8,7 +9,7 @@ const URL = "https://attacq.co.za/leadership";
 export const attacq: PeopleAdapter = {
   jseCode: "ATT",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Attacq leadership page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

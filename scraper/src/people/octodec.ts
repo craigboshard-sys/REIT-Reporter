@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://octodec.co.za/about-us/";
@@ -6,7 +7,7 @@ const URL = "https://octodec.co.za/about-us/";
 export const octodec: PeopleAdapter = {
   jseCode: "OCT",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Octodec about-us page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

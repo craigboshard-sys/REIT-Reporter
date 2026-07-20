@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://emira.co.za/meet-the-team/";
@@ -8,7 +9,7 @@ const GOVERNANCE_KEYWORDS = ["chief", "director", "chairman", "chairperson"];
 export const emira: PeopleAdapter = {
   jseCode: "EMI",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Emira meet-the-team page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

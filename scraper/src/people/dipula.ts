@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://www.dipula.co.za/index.php/who-we-are/board";
@@ -6,7 +7,7 @@ const URL = "https://www.dipula.co.za/index.php/who-we-are/board";
 export const dipula: PeopleAdapter = {
   jseCode: "DIB",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Dipula board page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

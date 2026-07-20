@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://www.vukile.co.za/leadership-team/";
@@ -8,7 +9,7 @@ const URL = "https://www.vukile.co.za/leadership-team/";
 export const vukile: PeopleAdapter = {
   jseCode: "VKE",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Vukile leadership team page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 

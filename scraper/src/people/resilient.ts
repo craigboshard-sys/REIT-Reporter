@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { fetchHtml } from "../http.js";
 import { PeopleAdapter, ScrapedPerson, looksExecutive } from "./types.js";
 
 const URL = "https://www.resilient.co.za/directors";
@@ -6,7 +7,7 @@ const URL = "https://www.resilient.co.za/directors";
 export const resilient: PeopleAdapter = {
   jseCode: "RES",
   async scrape() {
-    const res = await fetch(URL);
+    const res = await fetchHtml(URL);
     if (!res.ok) throw new Error(`Resilient directors page returned ${res.status}`);
     const $ = cheerio.load(await res.text());
 
