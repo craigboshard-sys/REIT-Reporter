@@ -17,20 +17,33 @@ Vercel) because it needs to run on a schedule independent of web traffic.
 | Hyprop (HYP) | `irhosted.profiledata.co.za/hyprop/...` | ProfileData vendor, "sens_row" template, exposes direct PDF links |
 | Emira (EMI) | `irhosted.profiledata.co.za/emira2/...` | ProfileData vendor, table/popup template |
 | Resilient (RES) | `resilient.co.za/announcements` | Company's own site, static HTML |
+| Growthpoint (GRT) | `irhosted.profiledata.co.za/Growthpoint/...` | ProfileData vendor, yet another distinct template (note: its own CSS class is misspelled `desription`) — plain fetch, no Cloudflare in front of this vendor subdomain |
+| Redefine (RDF) | `redefine.co.za/investors/investor-information/sens-announcements` | Company's own Angular site, behind Cloudflare — needs a headless browser (see below) |
 
-All four are plain static HTML — no headless browser needed, just `fetch` +
-`cheerio`. Verify anytime with `npx tsx src/test-adapters.ts`.
+Vukile, Hyprop, Emira, Resilient, and Growthpoint are all plain static
+HTML — no headless browser needed, just `fetch` + `cheerio`. Verify anytime
+with `npx tsx src/test-adapters.ts`.
 
-Note: despite Vukile, Hyprop, and Emira all using the same underlying vendor
-(ProfileData), each uses a different HTML template, so each needed its own
-parser — there was no single generic adapter that covered all three.
+Note: despite Vukile, Hyprop, Emira, and Growthpoint all using the same
+underlying vendor (ProfileData), each uses a different HTML template, so
+each needed its own parser — there was no single generic adapter that
+covered all four.
+
+Redefine uses `src/browser.ts` (the same stealth-Chromium helper as the
+people scraper) because the listing page is Cloudflare-protected. It's also
+the one adapter that isn't a simple parse: each row's title and date are
+visible in the list, but there's no `<a href>` — the row click is bound to
+Angular's in-app router with no id exposed in the list DOM. So the adapter
+clicks each row, reads the resulting detail-page URL as the announcement's
+permalink, scrapes the full SENS text from `pre.text-align-announcement`,
+then clicks back and repeats. This only covers the ~6 most recent
+announcements (page 1) per run, which is fine since the scraper runs 3x/day
+and the DB upsert dedupes on `(company_id, title, announced_at)`.
 
 ## Not yet implemented
 
 | Company | Why |
 |---|---|
-| Growthpoint (GRT) | IR page blocked non-browser requests (bot protection). Needs a headless browser (e.g. Playwright) to render, which this plain-fetch scraper doesn't have. |
-| Redefine (RDF) | Same — blocked (403) on direct fetch. |
 | Fortress (FFB) | Own Next.js/Contentful site; PDFs are directly linked but the full listing page's structure wasn't fully mapped yet. |
 | Attacq (ATT) | Nuxt.js site; no SENS data found in the page's JSON payloads during investigation. Needs more digging. |
 | SA Corporate (SAC) | Uses an IRESS market-data iframe with a token-gated feed URL that returned empty outside its iframe context. Needs more investigation (may require the referrer/parent-frame context, i.e. a headless browser). |

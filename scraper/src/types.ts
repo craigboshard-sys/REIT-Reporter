@@ -33,3 +33,23 @@ export function parseYYYYMMDD(text: string): string {
   const [, year, month, day] = match;
   return `${year}-${month}-${day}`;
 }
+
+/** Parses "24.06.2026" into "2026-06-24". */
+export function parseDDMMYYYYDotted(text: string): string {
+  const cleaned = text.trim();
+  const match = cleaned.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if (!match) throw new Error(`Unrecognized date format: "${text}"`);
+  const [, day, month, year] = match;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+/** Parses "06 July 2026" into "2026-07-06". */
+export function parseDDMonthYYYY(text: string): string {
+  const cleaned = text.trim();
+  const match = cleaned.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  if (!match) throw new Error(`Unrecognized date format: "${text}"`);
+  const [, day, monthName, year] = match;
+  const month = new Date(`${monthName} 1, 2000`).getMonth();
+  if (Number.isNaN(month)) throw new Error(`Unrecognized month: "${monthName}" in "${text}"`);
+  return `${year}-${String(month + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
