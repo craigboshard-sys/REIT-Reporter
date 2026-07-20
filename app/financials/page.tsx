@@ -1,7 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 
-function formatMetric(value: number | null, suffix: string) {
-  return value === null ? "—" : `${value}${suffix}`;
+function formatPct(value: number | null) {
+  return value === null || value === undefined ? "—" : `${value}%`;
+}
+
+function formatX(value: number | null) {
+  return value === null || value === undefined ? "—" : `${value}x`;
+}
+
+function formatYears(value: number | null) {
+  return value === null || value === undefined ? "—" : `${value} yrs`;
+}
+
+function formatCurrency(value: number | null, compact = false) {
+  return value === null || value === undefined
+    ? "—"
+    : value.toLocaleString("en-ZA", {
+        style: "currency",
+        currency: "ZAR",
+        notation: compact ? "compact" : "standard",
+      });
 }
 
 export default async function FinancialsPage() {
@@ -15,7 +33,9 @@ export default async function FinancialsPage() {
     supabase.from("companies").select("id, name, jse_code, shares_in_issue").order("jse_code"),
     supabase
       .from("financial_metrics")
-      .select("company_id, period_end, ltv, see_through_ltv, icr, nav_per_share")
+      .select(
+        "company_id, period_end, ltv, see_through_ltv, icr, nav_per_share, wacc, distribution_per_share, distribution_yield, payout_ratio, vacancy_rate, wale, avg_cost_of_debt, hedged_debt_pct",
+      )
       .order("period_end", { ascending: false }),
     supabase
       .from("share_prices")
@@ -39,10 +59,9 @@ export default async function FinancialsPage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight mb-2">Financial Metrics</h1>
       <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-2xl">
-        Key metrics per REIT from interim/annual results. LTV, See-Through LTV,
-        ICR, and NAV are entered manually via the Supabase Table Editor as each
-        company reports; Market Cap is computed automatically from the latest
-        share price.
+        Key ratios per REIT from interim/annual results, entered manually via
+        the Supabase Table Editor as each company reports. Market Cap and
+        Price-to-NAV are computed automatically from the latest share price.
       </p>
 
       {error && (
@@ -52,14 +71,14 @@ export default async function FinancialsPage() {
       )}
 
       {companies && companies.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {companies.map((company) => {
             const metric = latestMetricByCompany.get(company.id);
             const price = latestPriceByCompany.get(company.id);
             const marketCap =
-              price && company.shares_in_issue
-                ? price * company.shares_in_issue
-                : null;
+              price && company.shares_in_issue ? price * company.shares_in_issue : null;
+            const priceToNav =
+              price && metric?.nav_per_share ? price / metric.nav_per_share : null;
 
             return (
               <div
@@ -72,34 +91,50 @@ export default async function FinancialsPage() {
                     {company.jse_code}
                   </span>
                 </div>
-                <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <dt className="text-zinc-500 dark:text-zinc-400">Market Cap</dt>
-                  <dd className="text-right">
-                    {marketCap
-                      ? marketCap.toLocaleString("en-ZA", {
-                          style: "currency",
-                          currency: "ZAR",
-                          notation: "compact",
-                        })
-                      : "—"}
-                  </dd>
-                  <dt className="text-zinc-500 dark:text-zinc-400">LTV</dt>
-                  <dd className="text-right">{formatMetric(metric?.ltv ?? null, "%")}</dd>
-                  <dt className="text-zinc-500 dark:text-zinc-400">See-Through LTV</dt>
-                  <dd className="text-right">
-                    {formatMetric(metric?.see_through_ltv ?? null, "%")}
-                  </dd>
-                  <dt className="text-zinc-500 dark:text-zinc-400">ICR</dt>
-                  <dd className="text-right">{formatMetric(metric?.icr ?? null, "x")}</dd>
+                  <dd className="text-right">{formatCurrency(marketCap, true)}</dd>
+
                   <dt className="text-zinc-500 dark:text-zinc-400">NAV/share</dt>
+                  <dd className="text-right">{formatCurrency(metric?.nav_per_share ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Price-to-NAV</dt>
+                  <dd className="text-right">{formatX(priceToNav)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">LTV</dt>
+                  <dd className="text-right">{formatPct(metric?.ltv ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">See-Through LTV</dt>
+                  <dd className="text-right">{formatPct(metric?.see_through_ltv ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">ICR</dt>
+                  <dd className="text-right">{formatX(metric?.icr ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">WACC</dt>
+                  <dd className="text-right">{formatPct(metric?.wacc ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Avg cost of debt</dt>
+                  <dd className="text-right">{formatPct(metric?.avg_cost_of_debt ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Hedged debt</dt>
+                  <dd className="text-right">{formatPct(metric?.hedged_debt_pct ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Distribution/share</dt>
                   <dd className="text-right">
-                    {metric?.nav_per_share
-                      ? metric.nav_per_share.toLocaleString("en-ZA", {
-                          style: "currency",
-                          currency: "ZAR",
-                        })
-                      : "—"}
+                    {formatCurrency(metric?.distribution_per_share ?? null)}
                   </dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Distribution yield</dt>
+                  <dd className="text-right">{formatPct(metric?.distribution_yield ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Payout ratio</dt>
+                  <dd className="text-right">{formatPct(metric?.payout_ratio ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">Vacancy rate</dt>
+                  <dd className="text-right">{formatPct(metric?.vacancy_rate ?? null)}</dd>
+
+                  <dt className="text-zinc-500 dark:text-zinc-400">WALE</dt>
+                  <dd className="text-right">{formatYears(metric?.wale ?? null)}</dd>
                 </dl>
                 {metric && (
                   <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">

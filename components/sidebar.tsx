@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navSections } from "@/lib/nav";
+import { AppName } from "@/components/app-name";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export function Sidebar() {
   return (
     <nav className="w-64 shrink-0 border-r border-black/[.08] dark:border-white/[.145] px-4 py-6 overflow-y-auto">
       <Link href="/" className="block px-2 mb-6 text-lg font-semibold tracking-tight">
-        REIT Reporter
+        <AppName />
       </Link>
       {navSections.map((section) => (
         <div key={section.title} className="mb-6">

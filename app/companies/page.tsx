@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { AppName } from "@/components/app-name";
 
 export default async function CompaniesPage() {
   const supabase = await createClient();
@@ -11,7 +12,7 @@ export default async function CompaniesPage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight mb-2">Company Profiles</h1>
       <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-2xl">
-        JSE-listed property REITs tracked by REIT Reporter.
+        JSE-listed property REITs tracked by <AppName />.
       </p>
 
       {error && (
