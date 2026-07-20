@@ -49,6 +49,39 @@ Add two repository secrets (Settings → Secrets and variables → Actions):
   **secret** key (not the publishable one). This bypasses Row Level Security,
   so it must only live in GitHub Actions secrets, never in the Next.js app.
 
+## Key Individuals scraper (`src/people/`)
+
+Scrapes each company's own leadership/board page (executives + non-exec
+directors) into `company_people`. Runs weekly via
+`.github/workflows/scrape-people.yml` — board composition doesn't change
+often. Each site has its own HTML structure, so each has its own adapter
+(`src/people/index.ts` is the registry). Full replace per company on each
+run (delete + insert), since this represents *current* leadership, not a
+history.
+
+17 of 21 companies are covered: Accelerate, Attacq, Delta, Dipula, Emira,
+Equites, Fairvest, Heriot, Hyprop, NEPI Rockcastle, Oasis Crescent, Octodec,
+Resilient, SA Corporate, Spear, Stor-Age, Vukile.
+
+Not covered:
+- **Growthpoint, Redefine** — blocked by bot protection even with
+  browser-like headers (see `src/http.ts`); would need a real headless
+  browser to get past.
+- **Burstone, Fortress** — genuinely JS-rendered, no leadership data present
+  in the static HTML at all.
+
+Note on `src/http.ts`: several sites (Fairvest, Vukile, Delta) initially
+failed only in GitHub Actions CI, not locally — their bot protection was
+flagging Node's default `fetch()` headers (generic User-Agent, no Accept),
+not the CI IP itself. All people-scraper requests go through a shared
+`fetchHtml()` helper that sends realistic browser headers.
+
+Oasis Crescent caveat: that page lists directors of the parent **Oasis
+Group Holdings**, not confirmed to be identical to Oasis Crescent Property
+Fund's own board (likely overlapping — it's a small family-run group — but
+unverified). Roles are labeled `"... (Oasis Group)"` to make this explicit
+rather than presenting it as the fund's own board composition.
+
 ## Local testing
 
 ```bash
