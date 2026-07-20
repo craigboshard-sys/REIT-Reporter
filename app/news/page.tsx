@@ -14,7 +14,8 @@ export default async function NewsPage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight mb-2">News Articles</h1>
       <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-2xl">
-        SA property REIT news, aggregated from Moneyweb&apos;s property coverage.
+        SA property REIT news, aggregated from Moneyweb&apos;s property coverage and
+        company-specific Google News searches.
       </p>
 
       {error && (
