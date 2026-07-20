@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppName } from "@/components/app-name";
 
@@ -28,9 +29,10 @@ export default async function CompaniesPage() {
       {companies && companies.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {companies.map((company) => (
-            <div
+            <Link
               key={company.id}
-              className="rounded-lg border border-black/[.08] dark:border-white/[.145] px-4 py-3"
+              href={`/companies/${company.jse_code}`}
+              className="rounded-lg border border-black/[.08] dark:border-white/[.145] px-4 py-3 hover:bg-black/[.03] dark:hover:bg-white/[.05] transition-colors block"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm">{company.name}</span>
@@ -43,21 +45,11 @@ export default async function CompaniesPage() {
                 {company.has_international_exposure && " · International exposure"}
               </div>
               {company.description && (
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   {company.description}
                 </p>
               )}
-              {company.website_url && (
-                <a
-                  href={company.website_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100 underline"
-                >
-                  {company.website_url.replace(/^https?:\/\//, "")}
-                </a>
-              )}
-            </div>
+            </Link>
           ))}
         </div>
       )}

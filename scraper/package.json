@@ -10,7 +10,8 @@
     "scrape:video": "tsx src/scrape-video.ts",
     "scrape:podcasts": "tsx src/scrape-podcasts.ts",
     "scrape:regulatory": "tsx src/scrape-regulatory.ts",
-    "scrape:brokers": "tsx src/scrape-brokers.ts"
+    "scrape:brokers": "tsx src/scrape-brokers.ts",
+    "scrape:people": "tsx src/scrape-people.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
